@@ -5,11 +5,11 @@ class ContaNãoEncontrada(Exception) :
     pass 
 
 class Banco: 
-    def __init__ (self, conta_repo, cliente_repo) :
+    def __init__ (self, contaRepository, clienteRepository) :
         self.clientes = []
         self.contas = []
-        self.contaRepository = conta_repo 
-        self.clienteRepository = cliente_repo
+        self.contaRepository = contaRepository 
+        self.clienteRepository = clienteRepository
 
     def cadastrar_cliente (self, nome : str , cpf : str) -> Cliente : 
         cliente = Cliente (nome ,cpf)
