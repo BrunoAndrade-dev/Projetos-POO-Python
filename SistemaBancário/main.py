@@ -1,6 +1,7 @@
 from banco import Banco 
 from repository.cliente_repo import clienteRepository
 from repository.conta_repo import contaRepository
+from repository.dp import criar_tabelas
 
 def criar_banco () -> Banco :
 
@@ -9,6 +10,8 @@ def criar_banco () -> Banco :
     Factory do Banco 
 
     """
+    criar_tabelas()
+
     cliente_repo = clienteRepository()
     conta_repo = contaRepository()
 

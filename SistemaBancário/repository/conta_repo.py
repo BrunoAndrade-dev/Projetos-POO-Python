@@ -1,4 +1,4 @@
-from dp import get_connect
+from .dp import get_connect
 from conta import Conta
 class ErrorContaCreate (Exception) : 
     pass

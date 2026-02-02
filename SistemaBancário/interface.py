@@ -3,11 +3,13 @@ import streamlit as st
 from cliente import * 
 from conta import *
 from banco import*
+from main import banco
 import base64
 import os
 
 directorio_atual = os.path.dirname (os.path.abspath (__file__ ))
 caminho = os.path.join (directorio_atual, "fundo.jpg")
+
 
 def criar_card_animado(titulo, corpo, delay=0):
     # CSS com efeito de vidro para maior contraste
@@ -55,6 +57,20 @@ def set_background (png_file) :
 '''
     st.markdown (page_bg_img, unsafe_allow_html = True)
 
+def cliente_form () : 
+    with st.form ("form_cliente") :
+        try :
+            st.subheader ("Cadastro de Cliente")
+            nome = st.text_input ("Nome do Cliente")
+            cpf = st.text_input ("CPF do Cliente")
+            enviar = st.form_submit_button ("Cadastrar Cliente")
+            if enviar :
+                return nome , cpf , True 
+        except Exception as e :
+            st.error (f"Erro ao cadastrar cliente: {e}")
+            return None , None ,False
+    return None , None , False
+        
 set_background (caminho)
 
 st.set_page_config ("​​💰​Sistema_Bancário_Interativo")
@@ -80,7 +96,7 @@ if opção == "​​​🧬​​Início" :
     col1 , col2 , col3 = st.columns (3)
     with col1 : 
         st.badge("Linkedln", color = "blue")
-        st.link_button ("Acessar", "www.linkedin.com/in/bruno-raphael-andrade-48816b334")
+        st.link_button ("Acessar", "https://www.linkedin.com/in/bruno-raphael-andrade-48816b334/")
     with col2 :
         st.badge ("GitHub", color = "blue")
         st.link_button ("Veja aqui", "https://github.com/BrunoAndrade-dev")
@@ -89,7 +105,30 @@ if opção == "​​​🧬​​Início" :
         st.link_button ("Veja aqui", "https://portifolioapp-hwdouyi2fhao77txs4b5da.streamlit.app")
 
 if opção == " ​🙎🏻‍♂️​Cliente" :
-    pass
+    texto_aba_cliente = """
+     Nesta seção você poderá gerenciar informações dos clientes do banco, incluindo a criação de novos clientes, visualização de detalhes e atualização de informações pessoais.
+
+     """
+    criar_card_animado (" ​🙎🏻‍♂️​Cliente  ", texto_aba_cliente,  delay=1)
+
+    op_cliente , op_cliente2 = st.columns(2)
+    with op_cliente :
+        botao_cliente = st.button ("Cadastrar Novo Cliente")
+        if botao_cliente :
+            nome, cpf, enviar = cliente_form ()
+            if enviar : 
+                try :
+                    banco.cadastrar_cliente (nome , cpf)
+                    st.success (f"Cliente {nome} cadastrado com sucesso!")
+                except Exception as e :
+                    st.error(f"Erro ao cadastrar cliente: {e}")
+if opção == "​​​📈​Conta" :
+    texto_aba_conta = """
+    Nesta seção você poderá gerenciar as contas bancárias dos clientes, incluindo a criação de novas contas, visualização de detalhes das contas existentes e atualização de saldos.
+    """
+    criar_card_animado ("​​​📈​Conta  ", texto_aba_conta, delay=1)
+
+            
 
 
 
