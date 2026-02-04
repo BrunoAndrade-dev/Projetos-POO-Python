@@ -6,9 +6,27 @@ from banco import*
 from main import banco
 import base64
 import os
+from faker import Faker
 
 directorio_atual = os.path.dirname (os.path.abspath (__file__ ))
 caminho = os.path.join (directorio_atual, "fundo.jpg")
+
+def gerar_clientes ( banco_instance , quantidade : int) : 
+    faker = Faker ('pt_BR')
+    sucesso = 0 
+    st.progress (0)
+    status_text = st.empty()
+    for i in range(quantidade) : 
+        nome = faker.name()
+        cpf = faker.cpf()
+        banco_instance.cadastrar_cliente(nome, cpf)
+        sucesso += 1
+        if i % 10 == 0:
+            st.progress (i+1 / quantidade)
+            status_text.text (f"Gerando clientes: {sucesso}/{quantidade}")
+    status_text.text (f"Clientes gerados com sucesso: {sucesso}/{quantidade}")  
+    return sucesso
+
 
 
 def criar_card_animado(titulo, corpo, delay=0):
@@ -76,7 +94,7 @@ set_background (caminho)
 st.set_page_config ("​​💰​Sistema_Bancário_Interativo")
 with st.sidebar :
     st.title ("Navegação")
-    opção = st.radio("Ir para" , ["​​​🧬​​Início" , " ​🙎🏻‍♂️​Cliente" , "​​​📈​Conta" , "​​​​💳​Banco"])
+    opção = st.radio("Ir para" , ["​​​🧬​​Início" , " ​🙎🏻‍♂️​Cliente" , "​​​📈​Conta" , "​​​​💳​Banco", "😎​Administrador"])
 if opção == "​​​🧬​​Início" :
     criar_card_animado ("  ​​💰​Sistema Bancário Interativo  ", "Projeto feito para consolidar conhecimentos em POO ", delay=1)
 
@@ -104,31 +122,66 @@ if opção == "​​​🧬​​Início" :
         st.badge ("Portifólio", color = "blue")
         st.link_button ("Veja aqui", "https://portifolioapp-hwdouyi2fhao77txs4b5da.streamlit.app")
 
-if opção == " ​🙎🏻‍♂️​Cliente" :
+if opção == " ​🙎🏻‍♂️​Cliente": 
     texto_aba_cliente = """
-     Nesta seção você poderá gerenciar informações dos clientes do banco, incluindo a criação de novos clientes, visualização de detalhes e atualização de informações pessoais.
-
+     Nesta seção você poderá gerenciar informações dos clientes do banco...
      """
-    criar_card_animado (" ​🙎🏻‍♂️​Cliente  ", texto_aba_cliente,  delay=1)
+    criar_card_animado(" ​🙎🏻‍♂️​Cliente  ", texto_aba_cliente, delay=1)
 
-    op_cliente , op_cliente2 = st.columns(2)
-    with op_cliente :
-        botao_cliente = st.button ("Cadastrar Novo Cliente")
-        if botao_cliente :
-            nome, cpf, enviar = cliente_form ()
-            if enviar : 
-                try :
-                    banco.cadastrar_cliente (nome , cpf)
-                    st.success (f"Cliente {nome} cadastrado com sucesso!")
-                except Exception as e :
+    
+    if 'clicou_cadastrar' not in st.session_state:
+        st.session_state.clicou_cadastrar = False
+
+    op_cliente, op_cliente2 = st.columns(2)
+    
+    with op_cliente:
+        
+        if st.button("Cadastrar Novo Cliente"):
+            st.session_state.clicou_cadastrar = True
+
+    
+    if st.session_state.clicou_cadastrar:
+        nome, cpf, enviar = cliente_form()
+        
+        if enviar: 
+            if nome and cpf:
+                try:
+                    banco.cadastrar_cliente(nome, cpf)
+                    st.success(f"Cliente {nome} cadastrado com sucesso!")
+                    
+                    st.session_state.clicou_cadastrar = False 
+                   
+                except Exception as e:
                     st.error(f"Erro ao cadastrar cliente: {e}")
+            else:
+                st.warning("Por favor, preencha todos os campos.")
 if opção == "​​​📈​Conta" :
     texto_aba_conta = """
     Nesta seção você poderá gerenciar as contas bancárias dos clientes, incluindo a criação de novas contas, visualização de detalhes das contas existentes e atualização de saldos.
     """
     criar_card_animado ("​​​📈​Conta  ", texto_aba_conta, delay=1)
 
-            
+if opção == "😎​Administrador" :
+    texto_aba_administrador = """
+    Aba exclusiva para o administrador do sistema.
+    """
+    criar_card_animado ("😎​Administrador  ", texto_aba_administrador, delay=1)
+    if 'clicou_senha' not in st.session_state:
+        st.session_state.clicou_senha = False
+
+    with st.form ("form_senha") :
+        senha = st.text_input ("Senha")
+        enviar = st.form_submit_button ("Entrar")
+        if enviar :
+            if senha == '18052006':
+                st.session_state.clicou_senha = True
+                st.success("Senha correta")
+                if st.button("Gerar Clientes") : 
+                    pass 
+            else :
+                st.error("Senha incorreta")
+        
+
 
 
 

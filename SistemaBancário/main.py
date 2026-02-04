@@ -1,7 +1,7 @@
 from banco import Banco 
 from repository.cliente_repo import clienteRepository
 from repository.conta_repo import contaRepository
-from repository.dp import criar_tabelas
+from repository.dp import criar_tabelas, DB_PATH
 
 def criar_banco () -> Banco :
 
@@ -11,6 +11,8 @@ def criar_banco () -> Banco :
 
     """
     criar_tabelas()
+    # Garante que o app usa sempre este arquivo (evita confusão com outro .db na raiz do projeto)
+    print(f"[Sistema Bancário] Banco de dados em: {DB_PATH}")
 
     cliente_repo = clienteRepository()
     conta_repo = contaRepository()

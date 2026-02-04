@@ -24,10 +24,10 @@ class Banco:
         return nova_conta
     
     def buscar_conta_por_numero (self, conta_ : int) -> Conta :
-        for c in self.contas : 
-            if c.number == conta_ :
-                return c 
-        raise ContaNãoEncontrada("Conta Não Encontrada")
+        conta = self.conta_repo.buscar_conta(conta_)
+        if conta is None:
+            raise ContaNãoEncontrada("Conta Não Encontrada")
+        return conta
         
 
 

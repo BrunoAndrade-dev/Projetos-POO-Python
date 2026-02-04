@@ -2,7 +2,9 @@ import sqlite3
 from sqlite3 import Connection
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Caminho fixo: sempre na pasta SistemaBancário (onde está main.py), nunca na pasta do projeto
+_esta_pasta = os.path.abspath(os.path.dirname(__file__))   # .../SistemaBancário/repository
+BASE_DIR = os.path.dirname(_esta_pasta)                     # .../SistemaBancário
 DB_PATH = os.path.join(BASE_DIR, "banco_de_dados.db")
 
 def get_connect() -> Connection:
