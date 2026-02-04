@@ -7,6 +7,8 @@ from main import banco
 import base64
 import os
 from faker import Faker
+import pandas as pd
+from repository.dp import get_connect
 
 directorio_atual = os.path.dirname (os.path.abspath (__file__ ))
 caminho = os.path.join (directorio_atual, "fundo.jpg")
@@ -22,7 +24,7 @@ def gerar_clientes ( banco_instance , quantidade : int) :
         banco_instance.cadastrar_cliente(nome, cpf)
         sucesso += 1
         if i % 10 == 0:
-            st.progress (i+1 / quantidade)
+            st.progress ((i+1) / quantidade)
             status_text.text (f"Gerando clientes: {sucesso}/{quantidade}")
     status_text.text (f"Clientes gerados com sucesso: {sucesso}/{quantidade}")  
     return sucesso
@@ -117,10 +119,10 @@ if opção == "​​​🧬​​Início" :
         st.link_button ("Acessar", "https://www.linkedin.com/in/bruno-raphael-andrade-48816b334/")
     with col2 :
         st.badge ("GitHub", color = "blue")
-        st.link_button ("Veja aqui", "https://github.com/BrunoAndrade-dev")
+        st.link_button ("Acessar", "https://github.com/BrunoAndrade-dev")
     with col3 :
         st.badge ("Portifólio", color = "blue")
-        st.link_button ("Veja aqui", "https://portifolioapp-hwdouyi2fhao77txs4b5da.streamlit.app")
+        st.link_button ("Acessar", "https://portifolioapp-hwdouyi2fhao77txs4b5da.streamlit.app")
 
 if opção == " ​🙎🏻‍♂️​Cliente": 
     texto_aba_cliente = """
@@ -132,12 +134,12 @@ if opção == " ​🙎🏻‍♂️​Cliente":
     if 'clicou_cadastrar' not in st.session_state:
         st.session_state.clicou_cadastrar = False
 
-    op_cliente, op_cliente2 = st.columns(2)
     
-    with op_cliente:
+    
+    
         
-        if st.button("Cadastrar Novo Cliente"):
-            st.session_state.clicou_cadastrar = True
+    if st.button("Cadastrar Novo Cliente"):
+        st.session_state.clicou_cadastrar = True
 
     
     if st.session_state.clicou_cadastrar:
@@ -155,6 +157,14 @@ if opção == " ​🙎🏻‍♂️​Cliente":
                     st.error(f"Erro ao cadastrar cliente: {e}")
             else:
                 st.warning("Por favor, preencha todos os campos.")
+    
+    if st.button("Listar Clientes com tabela") : 
+        st.caption("Ok, você está prestes a listar clientes...")
+        # Listar banco de dados com tabela
+        df = pd.read_sql_query("SELECT * FROM clientes", get_connect())
+        st.dataframe(df)
+        st.caption("Clientes listados com sucesso!")
+
 if opção == "​​​📈​Conta" :
     texto_aba_conta = """
     Nesta seção você poderá gerenciar as contas bancárias dos clientes, incluindo a criação de novas contas, visualização de detalhes das contas existentes e atualização de saldos.
@@ -168,18 +178,22 @@ if opção == "😎​Administrador" :
     criar_card_animado ("😎​Administrador  ", texto_aba_administrador, delay=1)
     if 'clicou_senha' not in st.session_state:
         st.session_state.clicou_senha = False
+    if not st.session_state.clicou_senha:
+        with st.form ("form_senha") :
+            senha = st.text_input ("Senha")
+            enviar = st.form_submit_button ("Entrar")
+            if enviar :
+                if senha == '18052006':
+                    st.session_state.clicou_senha = True
+                    st.success("Senha correta")
+                else :
+                    st.error("Senha incorreta")
+    if st.session_state.clicou_senha:
+        if st.button("Gerar Clientes") : 
+            st.caption("Ok, você está prestes a gerar clientes...")
+            gerar_clientes(banco, 1000)
+            st.caption("Clientes gerados com sucesso!")
 
-    with st.form ("form_senha") :
-        senha = st.text_input ("Senha")
-        enviar = st.form_submit_button ("Entrar")
-        if enviar :
-            if senha == '18052006':
-                st.session_state.clicou_senha = True
-                st.success("Senha correta")
-                if st.button("Gerar Clientes") : 
-                    pass 
-            else :
-                st.error("Senha incorreta")
         
 
 
