@@ -9,7 +9,7 @@ import os
 from faker import Faker
 import pandas as pd
 from repository.dp import get_connect
-
+import random 
 directorio_atual = os.path.dirname (os.path.abspath (__file__ ))
 caminho = os.path.join (directorio_atual, "fundo.jpg")
 
@@ -21,6 +21,8 @@ def gerar_clientes ( banco_instance , quantidade : int) :
     for i in range(quantidade) : 
         nome = faker.name()
         cpf = faker.cpf()
+        if banco_instance.cliente_repo.cpf_existe(cpf) : 
+            continue
         banco_instance.cadastrar_cliente(nome, cpf)
         sucesso += 1
         if i % 10 == 0:
@@ -170,32 +172,110 @@ if opção == "​​​📈​Conta" :
     Nesta seção você poderá gerenciar as contas bancárias dos clientes, incluindo a criação de novas contas, visualização de detalhes das contas existentes e atualização de saldos.
     """
     criar_card_animado ("​​​📈​Conta  ", texto_aba_conta, delay=1)
+    if "Acessar Conta" not in st.session_state:
+        st.session_state.Acessar_Conta = False
+    if not st.session_state.Acessar_Conta:
+        pass 
+
+if opção == "​​​​💳​Banco" :
+    texto_aba_banco = """
+    Nesta seção você poderá gerenciar o banco, incluindo a criação de novas contas, visualização de detalhes das contas existentes e atualização de saldos.
+    """
+    criar_card_animado ("​​​​💳​Banco  ", texto_aba_banco, delay=1)
+
+    if "Criar_Conta" not in st.session_state : 
+        st.session_state.Criar_Conta = False
+    if not st.session_state.Criar_Conta:
+        if st.button("Criar Nova Conta ") : 
+            st.session_state.Criar_Conta = True
+    if st.session_state.Criar_Conta:
+        with st.form("forma_nova_conta") : 
+            numero = st.text_input("Número da Conta")
+            saldo = st.text_input("Saldo da Conta")
+            cliente = st.text_input("CPF do Cliente")
+            enviar = st.form_submit_button("Criar Conta")
+            if enviar:
+                if numero and saldo and cliente:
+                    try:
+                        banco.criar_conta(cliente, numero, saldo)
+                        st.success("Conta criada com sucesso!")
+                    except Exception as e:
+                        st.error (f"Erro ao criar conta : {e}")
+                else:
+                    st.warning("Por favor, preencha todos os campos.")
 
 if opção == "😎​Administrador" :
     texto_aba_administrador = """
     Aba exclusiva para o administrador do sistema.
     """
     criar_card_animado ("😎​Administrador  ", texto_aba_administrador, delay=1)
-    if 'clicou_senha' not in st.session_state:
+
+    if "clicou_senha" not in st.session_state : 
         st.session_state.clicou_senha = False
+
+    def gerar_contas(banco_instance):
+    # Agora usamos o método que você acabou de criar no repositório
+        try:
+            clientes = banco_instance.cliente_repo.buscar_todos_clientes()
+        except Exception as e:
+            st.error(f"Erro ao buscar clientes: {e}")
+            return
+
+        if not clientes:
+            st.warning("Nenhum cliente encontrado no banco de dados.")
+            return 
+
+        sucesso = 0
+    
+        with st.status("Vinculando contas aos clientes...", expanded=True) as status: 
+            for c in clientes: 
+           
+                numero_conta = random.randint(1000, 99999)
+            
+                saldo_inicial = round(random.uniform(10.0, 5000.0), 2)
+
+                try: 
+               
+                    banco_instance.criar_conta(c.cpf, numero_conta, saldo_inicial)
+                    sucesso += 1
+                except Exception:  
+                
+                    continue
+
+        status.update(label=f"Processo concluído! {sucesso} contas criadas.", state="complete")
+    
+        return sucesso
+
     if not st.session_state.clicou_senha:
-        with st.form ("form_senha") :
-            senha = st.text_input ("Senha")
-            enviar = st.form_submit_button ("Entrar")
-            if enviar :
+        with st.form("form_admin"):
+            senha = st.text_input("Senha de Acesso", type="password")
+            entrar = st.form_submit_button("Entrar")
+            if entrar:
                 if senha == '18052006':
                     st.session_state.clicou_senha = True
-                    st.success("Senha correta")
-                else :
-                    st.error("Senha incorreta")
+                    st.rerun()
+                else:
+                    st.error("Senha incorreta!")
+    
     if st.session_state.clicou_senha:
-        if st.button("Gerar Clientes") : 
-            st.caption("Ok, você está prestes a gerar clientes...")
-            gerar_clientes(banco, 1000)
-            st.caption("Clientes gerados com sucesso!")
-
+        st.success("Logado como administrador!")
         
+        
+        col1, col2 = st.columns(2)
+    
+        with col1:
+            if st.button("Gerar Clientes"): 
+                st.caption("A processar carga de clientes...")
+                gerar_clientes(banco, 1000)
+                st.success("1000 Clientes gerados!")
 
-
-
-
+        with col2:
+            if st.button("Gerar Contas para Clientes"):
+                st.caption("A vincular contas aos CPFs existentes...")
+                gerar_contas(banco)
+            
+        st.divider() 
+        
+        if st.button("Logout"):
+            st.session_state.clicou_senha = False
+            st.rerun()

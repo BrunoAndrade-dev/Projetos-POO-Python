@@ -27,6 +27,14 @@ class contaRepository :
             raise ErrorContaCreate("Número de conta já existente")
         except sqlite3.Error as e:
             raise ErrorContaCreate(f"Erro ao salvar conta: {e}")
+
+    def conta_existe(self, numero : str) -> bool :
+        conn = get_connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM contasa WHERE numero = ?", (numero,))
+        existe = cursor.fetchone() is not None
+        conn.close()
+        return existe
     
     def buscar_conta (self, number) : 
         try:

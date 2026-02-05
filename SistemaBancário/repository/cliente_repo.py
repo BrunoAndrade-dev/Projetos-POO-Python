@@ -29,6 +29,14 @@ class clienteRepository :
             if conn:
                 conn.close()
 
+    def cpf_existe (self, cpf : str) -> bool : 
+        conn = get_connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM clientes WHERE cpf = ?" , (cpf,))
+        existe = cursor.fetchone() is not None
+        conn.close()
+        return existe
+
     
     def buscar_por_cpf (self, cpf  : str) : 
         conn = None
@@ -45,3 +53,11 @@ class clienteRepository :
         finally:
             if conn:
                 conn.close()
+    
+    def busca_todos_clientes (self) : 
+        conn = get_connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM clientes")
+        rows = cursor.fetchall()
+        conn.close()
+        return [Cliente(nome = row['nome'], cpf = row['cpf']) for row in rows]

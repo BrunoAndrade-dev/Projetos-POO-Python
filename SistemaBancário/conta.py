@@ -19,7 +19,9 @@ class Conta :
     def depositar(self, valor) : 
         if valor <= 0 :
             raise ValueError("Valor Inválido")
+        self.saldo += valor
 
     def transferir (self,conta_destino,  valor) : 
         self.sacar(valor)
         conta_destino.depositar(valor)
+        self.saldo -= valor 
