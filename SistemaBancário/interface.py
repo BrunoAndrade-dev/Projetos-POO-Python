@@ -172,10 +172,13 @@ if opção == "​​​📈​Conta" :
     Nesta seção você poderá gerenciar as contas bancárias dos clientes, incluindo a criação de novas contas, visualização de detalhes das contas existentes e atualização de saldos.
     """
     criar_card_animado ("​​​📈​Conta  ", texto_aba_conta, delay=1)
+
     if "Acessar Conta" not in st.session_state:
         st.session_state.Acessar_Conta = False
     if not st.session_state.Acessar_Conta:
-        pass 
+        if st.button ("Entrar") : 
+            st.session_state.Acessar_Conta = True 
+             
 
 if opção == "​​​​💳​Banco" :
     texto_aba_banco = """
