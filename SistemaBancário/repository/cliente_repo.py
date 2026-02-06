@@ -54,10 +54,16 @@ class clienteRepository :
             if conn:
                 conn.close()
     
-    def busca_todos_clientes (self) : 
+    def buscar_todos_clientes (self) : 
         conn = get_connect()
+        conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM clientes")
-        rows = cursor.fetchall()
-        conn.close()
-        return [Cliente(nome = row['nome'], cpf = row['cpf']) for row in rows]
+        try :
+            cursor.execute("SELECT * FROM clientes")
+            rows = cursor.fetchall()
+            conn.close()
+            return [Cliente(nome = row['nome'], cpf = row['cpf']) for row in rows]
+        except sqlite3.Error as e:
+            raise BuscaError (f"Erro ao buscar clientes: {e}")
+        finally : 
+            conn.close()

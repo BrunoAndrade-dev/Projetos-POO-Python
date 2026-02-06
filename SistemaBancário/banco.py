@@ -18,10 +18,14 @@ class Banco:
         return cliente 
     
 
-    def criar_conta (self, cliente : Cliente, number : int , saldo : float = 0.0) -> Conta : 
-        if self.cotna_repo.conta_existe(number) :
+    def criar_conta (self, cpf_ou_cliente, number : int , saldo : float = 0.0) -> Conta : 
+        if self.conta_repo.conta_existe(number) :
             raise ValueError (f"O número da conta {number} ja foi cadastrado no sistema do banco")    
-        nova_conta = Conta(number , saldo, cliente)
+        if isinstance(cpf_ou_cliente, str) : 
+            cliente_obj = self.cliente_repo.buscar_por_cpf(cpf_ou_cliente)
+        else : 
+            cliente_obj = cpf_ou_cliente
+        nova_conta = Conta(number , saldo, cliente_obj)
         self.conta_repo.salvar_conta (nova_conta)
         
         return nova_conta
@@ -31,6 +35,10 @@ class Banco:
         if conta is None:
             raise ContaNãoEncontrada("Conta Não Encontrada")
         return conta
+    
+    def saldo (self, numero_conta ) :
+        conta = self.buscar_conta_por_numero(numero_conta)
+        return conta.saldo
         
 
 

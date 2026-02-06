@@ -31,7 +31,7 @@ class contaRepository :
     def conta_existe(self, numero : str) -> bool :
         conn = get_connect()
         cursor = conn.cursor()
-        cursor.execute("SELECT 1 FROM contasa WHERE numero = ?", (numero,))
+        cursor.execute("SELECT 1 FROM contas WHERE numero = ?", (numero,))
         existe = cursor.fetchone() is not None
         conn.close()
         return existe
@@ -68,3 +68,27 @@ class contaRepository :
             conn.close()
         except sqlite3.Error as e:
             raise ErrorAtualizarSaldo(f"Erro ao atualizar saldo: {e}")
+    
+    def busca_conta_por_cpf (self, cpf : str) :
+        conn = None
+        try:
+            conn = get_connect()
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute(
+                """SELECT c.numero, c.saldo, c.cpf_cliente, cl.nome
+                   FROM contas c
+                   JOIN clientes cl ON c.cpf_cliente = cl.cpf
+                   WHERE cl.cpf = ?""",
+                (cpf,)
+            )
+            row = cursor.fetchone()
+            conn.close()
+            if row:
+                return Conta(row['numero'], row['saldo'], Cliente(row['nome'], row['cpf_cliente']))
+            return None
+        except sqlite3.Error as e:
+            raise ErrorFindConta(f"Erro ao buscar conta por CPF: {e}")
+        finally : 
+            if conn : 
+                conn.close()

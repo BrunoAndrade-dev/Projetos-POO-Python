@@ -145,6 +145,7 @@ if opção == " ​🙎🏻‍♂️​Cliente":
 
     
     if st.session_state.clicou_cadastrar:
+        st.write ("### 📝 Formulário ")
         nome, cpf, enviar = cliente_form()
         
         if enviar: 
@@ -167,18 +168,63 @@ if opção == " ​🙎🏻‍♂️​Cliente":
         st.dataframe(df)
         st.caption("Clientes listados com sucesso!")
 
-if opção == "​​​📈​Conta" :
-    texto_aba_conta = """
-    Nesta seção você poderá gerenciar as contas bancárias dos clientes, incluindo a criação de novas contas, visualização de detalhes das contas existentes e atualização de saldos.
-    """
-    criar_card_animado ("​​​📈​Conta  ", texto_aba_conta, delay=1)
+if opção == "​​​📈​Conta":
+    texto_aba_conta = "Gerencie contas, visualize detalhes e atualize saldos."
+    criar_card_animado("​​​📈​Conta", texto_aba_conta, delay=1)
 
-    if "Acessar Conta" not in st.session_state:
-        st.session_state.Acessar_Conta = False
-    if not st.session_state.Acessar_Conta:
-        if st.button ("Entrar") : 
-            st.session_state.Acessar_Conta = True 
-             
+    if "cliente_localizado" not in st.session_state:
+        st.session_state.cliente_localizado = False
+    if "cpf_atual" not in st.session_state:
+        st.session_state.cpf_atual = ""
+
+    with st.form("identificacao_cliente"):
+        st.write("### 🔍 Identificação de Correntista")
+        cpf_input = st.text_input("Digite o CPF do cliente", placeholder="000.000.000-00")
+        submeteu = st.form_submit_button("Verificar CPF")
+
+        if submeteu:
+            if cpf_input:
+                if banco.cliente_repo.cpf_existe(cpf_input):
+                    st.session_state.cliente_localizado = True
+                    st.session_state.cpf_atual = cpf_input
+                else:
+                    st.session_state.cliente_localizado = False
+                    st.error("❌ CPF não encontrado no sistema.")
+            else:
+                st.warning("⚠️ Digite um CPF para pesquisar.")
+
+    if st.session_state.cliente_localizado:
+        st.success(f"✅ Cliente localizado: {st.session_state.cpf_atual}")
+        cliente_data = banco.cliente_repo.buscar_por_cpf(st.session_state.cpf_atual)
+
+        conta_data = banco.conta_repo.busca_conta_por_cpf(st.session_state.cpf_atual)
+
+        col1, col2 = st.columns([1, 2])
+        with col1:
+             st.metric("Status da Conexão", "Ativa", delta="Disponível")
+        if conta_data : 
+            with col2:
+                st.metric("Número da Conta", conta_data.number, )
+                if conta_data.saldo >= 0 :
+                    st.metric ("Saldo Atual", f"R$ {conta_data.saldo:.2f}", delta = "Positivo", delta_color="normal")
+                else :
+                    st.metric ("Saldo Atual", f"R$ {conta_data.saldo:.2f}", delta = "Negativo", delta_color="inverse")
+
+            with st.expander("💸 Realizar Transações Financeiras", expanded = False ) : 
+                tab_deposito, tab_saque = st.tabs (["💰Depósito" , "🏧Saque"])
+
+                with tab_deposito :
+                    st.write ("### 💰 Área de Depósito")
+                    pass
+                with tab_saque :
+                    st.write ("### 🏧 Área de Saque")
+                    pass
+                
+        
+        if st.button("Buscar outro CPF"):
+            st.session_state.cliente_localizado = False
+            st.session_state.cpf_atual = ""
+            st.rerun() 
 
 if opção == "​​​​💳​Banco" :
     texto_aba_banco = """
@@ -193,7 +239,8 @@ if opção == "​​​​💳​Banco" :
             st.session_state.Criar_Conta = True
     if st.session_state.Criar_Conta:
         with st.form("forma_nova_conta") : 
-            numero = st.text_input("Número da Conta")
+            st.write ("### 🏦 Criação de Nova Conta Bancária")
+            numero = st.text_input(" Número da Conta")
             saldo = st.text_input("Saldo da Conta")
             cliente = st.text_input("CPF do Cliente")
             enviar = st.form_submit_button("Criar Conta")
@@ -251,6 +298,7 @@ if opção == "😎​Administrador" :
 
     if not st.session_state.clicou_senha:
         with st.form("form_admin"):
+            st.write ("### 🔐 Acesso Restrito - Administrador")
             senha = st.text_input("Senha de Acesso", type="password")
             entrar = st.form_submit_button("Entrar")
             if entrar:
