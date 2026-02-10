@@ -10,6 +10,7 @@ from faker import Faker
 import pandas as pd
 from repository.dp import get_connect
 import random 
+import time 
 directorio_atual = os.path.dirname (os.path.abspath (__file__ ))
 caminho = os.path.join (directorio_atual, "fundo.jpg")
 
@@ -274,9 +275,41 @@ if opção == "​​​📈​Conta":
                                 st.error(f"Erro: {e}")
 
                 with tab_transferir:
-                    st.write("### 🔄 Área de Transferência")
+                    st.write("### 🔄Área de Transferência")
+
+                    with st.form (" 🚀​transferir") : 
+                        cpf_d = st.text_input("CPF do Destinatário" ,placeholder = "000.000.000-00" )
+                        valor_d = st.number_input ("Valor da transferência", placeholder = "000,00")
+                        
+                        if st.form_submit_button ("transferir") :
+                            try : 
+                                conta_destino = banco.conta_repo.busca_conta_por_cpf(cpf_d)
+                                if not conta_destino : 
+
+                                    st.error (" ❌​ ERRO AO ENCONTRAR DESTINATÁRIO")
+
+                                elif conta_destino == st.session_state.cpf_atual :
+
+                                    st.warning (" ​⚠️​ Não pode transferir para você mesmo")
+
+                                else : 
+                                    conta_data.transferir(conta_destino, valor_d)
+                                    banco.conta_repo.atualizar_saldo (conta_data)
+                                    banco.conta_repo.atualizar_saldo(conta_destino)
+                                    progresso_bar = st.progress(0)
+                                    
+                                    
+                                for i in range (20) : 
+                                    time.sleep(0.1)
+                                    progresso_bar.progress(i + 1)
+
+                                st.success(f"✅ Transferência de R$ {valor_d:.2f} realizada!")
+                                st.rerun()
+                            except Exception as e : 
+                                st.error(f" ERRO AO PROCESSAR TRANSFERÊNCIA {e}")
+                                
                     
-                    st.info("Funcionalidade em desenvolvimento.")
+                    
 
         if st.button("🔍 Buscar outro CPF"):
             st.session_state.cliente_localizado = False
