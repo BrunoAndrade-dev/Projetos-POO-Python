@@ -40,6 +40,7 @@ classDiagram
     Banco ..> Cliente : gerencia
     Banco --> ContaRepository : utiliza
     Banco --> ClienteRepository : utiliza
+```
 ## Resumo do que foi feito
 * **Arquitetura em Camadas**: Separação clara entre a lógica de negócio (Conta, Cliente), a camada de persistência (Repositórios) e a interface de usuário.
 * **Persistência com SQLite**: Implementação de um sistema de banco de dados para garantir que as informações de clientes e saldos sejam mantidas após o fechamento da aplicação.
