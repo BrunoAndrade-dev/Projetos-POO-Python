@@ -211,7 +211,7 @@ if opção == "​​​📈​Conta":
                     st.metric ("Saldo Atual", f"R$ {conta_data.saldo:.2f}", delta = "Negativo", delta_color="inverse")
 
             with st.expander("💸 Realizar Transações Financeiras", expanded = False ) : 
-                tab_deposito, tab_saque = st.tabs (["💰Depósito" , "🏧Saque"])
+                tab_deposito, tab_saque, tab_transferir= st.tabs (["💰Depósito" , "🏧Saque"])
 
                 with tab_deposito :
                     st.write ("### 💰 Área de Depósito")
@@ -219,6 +219,8 @@ if opção == "​​​📈​Conta":
                 with tab_saque :
                     st.write ("### 🏧 Área de Saque")
                     pass
+                with tab_transferir : 
+                    st.write ("### ")
                 
         
         if st.button("Buscar outro CPF"):
