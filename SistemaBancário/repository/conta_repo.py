@@ -66,6 +66,7 @@ class contaRepository :
             )
             conn.commit()
             conn.close()
+            print(f"DEBUG SQL : gravando {conta.saldo} no banco")
         except sqlite3.Error as e:
             raise ErrorAtualizarSaldo(f"Erro ao atualizar saldo: {e}")
     

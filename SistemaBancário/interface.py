@@ -2,7 +2,7 @@ import streamlit as st
 
 from cliente import * 
 from conta import *
-from banco import*
+from banco import *
 from main import banco
 import base64
 import os
@@ -176,6 +176,8 @@ if opção == "​​​📈​Conta":
         st.session_state.cliente_localizado = False
     if "cpf_atual" not in st.session_state:
         st.session_state.cpf_atual = ""
+    if "confirmacao_pendente" not in st.session_state:
+        st.session_state.confirmacao_pendente = False
 
     with st.form("identificacao_cliente"):
         st.write("### 🔍 Identificação de Correntista")
@@ -183,50 +185,103 @@ if opção == "​​​📈​Conta":
         submeteu = st.form_submit_button("Verificar CPF")
 
         if submeteu:
-            if cpf_input:
-                if banco.cliente_repo.cpf_existe(cpf_input):
-                    st.session_state.cliente_localizado = True
-                    st.session_state.cpf_atual = cpf_input
-                else:
-                    st.session_state.cliente_localizado = False
-                    st.error("❌ CPF não encontrado no sistema.")
+            if cpf_input and banco.cliente_repo.cpf_existe(cpf_input):
+                st.session_state.cliente_localizado = True
+                st.session_state.cpf_atual = cpf_input
+                st.rerun() 
             else:
-                st.warning("⚠️ Digite um CPF para pesquisar.")
+                st.error("❌ CPF não encontrado ou inválido.")
 
+    
     if st.session_state.cliente_localizado:
-        st.success(f"✅ Cliente localizado: {st.session_state.cpf_atual}")
+        
         cliente_data = banco.cliente_repo.buscar_por_cpf(st.session_state.cpf_atual)
-
         conta_data = banco.conta_repo.busca_conta_por_cpf(st.session_state.cpf_atual)
 
-        col1, col2 = st.columns([1, 2])
-        with col1:
-             st.metric("Status da Conexão", "Ativa", delta="Disponível")
-        if conta_data : 
+        if conta_data:
+            st.success(f"✅ Cliente localizado: {cliente_data.nome}")
+            
+            col1, col2 = st.columns([1, 2])
+            with col1:
+                st.metric("Status da Conexão", "Ativa", delta="Disponível")
             with col2:
-                st.metric("Número da Conta", conta_data.number, )
-                if conta_data.saldo >= 0 :
-                    st.metric ("Saldo Atual", f"R$ {conta_data.saldo:.2f}", delta = "Positivo", delta_color="normal")
-                else :
-                    st.metric ("Saldo Atual", f"R$ {conta_data.saldo:.2f}", delta = "Negativo", delta_color="inverse")
-
-            with st.expander("💸 Realizar Transações Financeiras", expanded = False ) : 
-                tab_deposito, tab_saque, tab_transferir= st.tabs (["💰Depósito" , "🏧Saque"])
-
-                with tab_deposito :
-                    st.write ("### 💰 Área de Depósito")
-                    pass
-                with tab_saque :
-                    st.write ("### 🏧 Área de Saque")
-                    pass
-                with tab_transferir : 
-                    st.write ("### ")
+                st.metric("Número da Conta", conta_data.number)
                 
+                if conta_data.saldo >= 0:
+                    st.metric("Saldo Atual", f"R$ {conta_data.saldo:.2f}", delta="Positivo")
+                else:
+                    st.metric("Saldo Atual", f"R$ {conta_data.saldo:.2f}", delta="Negativo", delta_color="inverse")
+
+            with st.expander("💸 Realizar Transações Financeiras", expanded=True):
+                tab_deposito, tab_saque, tab_transferir = st.tabs(["💰 Depósito", "🏧 Saque", "🔄 Transferência"])
+
+                with tab_deposito:
+                    st.write("### 💰 Área de Depósito")
+
+    
+                    if "confirmar_deposito" not in st.session_state:
+                        st.session_state.confirmar_deposito = False
+                    if "valor_preparado" not in st.session_state:
+                        st.session_state.valor_preparado = 0.0
+
+    
+                    with st.form("form_valor_deposito"):
+                        valor_digitado = st.number_input("Quanto deseja depositar?", min_value=0.01, step=50.0)
+                        if st.form_submit_button("Preparar Depósito"):
+                            st.session_state.valor_preparado = valor_digitado
+                            st.session_state.confirmar_deposito = True
+            
+
+    
+                    if st.session_state.confirmar_deposito:
+                        st.warning(f"⚠️ **Atenção:** Você está prestes a depositar **R$ {st.session_state.valor_preparado:.2f}** na conta {conta_data.number}. Confirma?")
         
-        if st.button("Buscar outro CPF"):
+                        col_c1, col_c2 = st.columns(2)
+        
+                        with col_c1:
+                            if st.button("✅ Confirmar Agora", use_container_width=True):
+                                try:
+                    
+                                    conta_data.depositar(st.session_state.valor_preparado)
+                                    banco.conta_repo.atualizar_saldo(conta_data)
+                    
+                                    st.success("Depósito realizado com sucesso!")
+                    
+                    
+                                    st.session_state.confirmar_deposito = False
+                                    st.session_state.valor_preparado = 0.0
+                                    st.rerun()
+                                except Exception as e:
+                                    st.error(f"Erro ao depositar: {e}")
+
+                        with col_c2:
+                            if st.button("❌ Cancelar", use_container_width=True):
+                                st.session_state.confirmar_deposito = False
+                                st.session_state.valor_preparado = 0.0
+                                st.rerun()
+
+                with tab_saque:
+                    st.write("### 🏧 Área de Saque")
+                    with st.form("executar_saque"):
+                        valor_s = st.number_input("Quanto deseja sacar?", min_value=0.01, step=50.0)
+                        if st.form_submit_button("Confirmar Saque"):
+                            try:
+                                conta_data.sacar(valor_s)
+                                banco.conta_repo.atualizar_saldo(conta_data)
+                                st.success("Saque realizado!")
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Erro: {e}")
+
+                with tab_transferir:
+                    st.write("### 🔄 Área de Transferência")
+                    
+                    st.info("Funcionalidade em desenvolvimento.")
+
+        if st.button("🔍 Buscar outro CPF"):
             st.session_state.cliente_localizado = False
             st.session_state.cpf_atual = ""
-            st.rerun() 
+            st.rerun()
 
 if opção == "​​​​💳​Banco" :
     texto_aba_banco = """

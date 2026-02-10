@@ -1,5 +1,6 @@
 from cliente import Cliente
-from conta import Conta 
+from conta import Conta
+from repository.conta_repo import contaRepository
 
 class ContaNãoEncontrada(Exception) : 
     pass 
