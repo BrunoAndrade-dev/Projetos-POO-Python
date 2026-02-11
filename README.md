@@ -7,8 +7,6 @@ O objetivo principal foi aplicar na prática os pilares da POO (Abstração, Enc
 
 ## Arquitetura do Sistema
 
-O projeto segue uma arquitetura modular baseada em Programação Orientada a Objetos (POO), garantindo a separação de responsabilidades entre a interface, a lógica de negócio e a persistência de dados.
-
 ### Diagrama de Classes
 O diagrama abaixo ilustra as relações entre as principais classes do sistema:
 
@@ -42,7 +40,7 @@ classDiagram
     Banco ..> Cliente : gerencia
     Banco --> ContaRepository : utiliza
     Banco --> ClienteRepository : utiliza
-
+```
 ## Resumo do que foi feito
 * **Arquitetura em Camadas**: Separação clara entre a lógica de negócio (Conta, Cliente), a camada de persistência (Repositórios) e a interface de usuário.
 * **Persistência com SQLite**: Implementação de um sistema de banco de dados para garantir que as informações de clientes e saldos sejam mantidas após o fechamento da aplicação.
