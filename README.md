@@ -12,7 +12,8 @@ O diagrama abaixo ilustra as relações entre as principais classes do sistema:
 
 ```mermaid
 classDiagram
-    class Cliente {
+    class 
+    Cliente {
         +String nome
         +String cpf
     }
