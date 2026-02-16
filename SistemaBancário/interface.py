@@ -13,6 +13,7 @@ import random
 import time 
 directorio_atual = os.path.dirname (os.path.abspath (__file__ ))
 caminho = os.path.join (directorio_atual, "fundo.jpg")
+df = pd.read_csv("data/clean_data.csv")
 
 def gerar_clientes ( banco_instance , quantidade : int) : 
     faker = Faker ('pt_BR')
@@ -47,7 +48,7 @@ def criar_card_animado(titulo, corpo, delay=0):
             animation-delay: {delay}s;
             opacity: 0;
             background: #1E1EE1E /* Fundo escuro para ler sobre a foto */
-            backdrop-filter: none;    /* Efeito de vidro fosco */
+            backdrop-filter: none;    /* Efeito de vidro fosco */;
             padding: 25px;
             border-radius: 15px;
             border: 1px solid;
@@ -99,7 +100,7 @@ set_background (caminho)
 st.set_page_config ("​​💰​Sistema_Bancário_Interativo")
 with st.sidebar :
     st.title ("Navegação")
-    opção = st.radio("Ir para" , ["​​​🧬​​Início" , " ​🙎🏻‍♂️​Cliente" , "​​​📈​Conta" , "​​​​💳​Banco", "😎​Administrador"])
+    opção = st.radio("Ir para" , ["​​​🧬​​Início" , " ​🙎🏻‍♂️​Cliente" , "​​​📈​Conta" , "​​​​💳​Banco", "😎​Administrador" , "📊​​Dashboard"])
 if opção == "​​​🧬​​Início" :
     criar_card_animado ("  ​​💰​Sistema Bancário Interativo  ", "Projeto feito para consolidar conhecimentos em POO ", delay=1)
 
@@ -420,3 +421,13 @@ if opção == "😎​Administrador" :
         if st.button("Logout"):
             st.session_state.clicou_senha = False
             st.rerun()
+
+
+if opção == "📊​​Dashboard" : 
+    criar_card_animado ("📊​​Dashboard" , "Aba dedicada à análise de dados", delay = 1)
+    
+    
+
+    
+    
+    
