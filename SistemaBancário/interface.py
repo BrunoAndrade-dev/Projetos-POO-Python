@@ -11,6 +11,7 @@ import pandas as pd
 from repository.dp import get_connect
 import random 
 import time 
+from logica import *
 directorio_atual = os.path.dirname (os.path.abspath (__file__ ))
 caminho = os.path.join (directorio_atual, "fundo.jpg")
 df = pd.read_csv("data/clean_data.csv")
@@ -424,7 +425,19 @@ if opção == "😎​Administrador" :
 
 
 if opção == "📊​​Dashboard" : 
-    criar_card_animado ("📊​​Dashboard" , "Aba dedicada à análise de dados", delay = 1)
+    criar_card_animado ("📊​​Dashboard" , "Seção dedicada à análise de dados", delay = 1)
+    extracao_info(df)
+
+    st.divider()
+
+    func1, func2 = st.columns(2)
+
+    with func1 : 
+        Aum(df)
+
+    with func2 : 
+        divisao_saldo(df)
+
     
     
 
