@@ -12,8 +12,7 @@ O diagrama abaixo ilustra as relações entre as principais classes do sistema:
 
 ```mermaid
 classDiagram
-    class 
-    Cliente {
+    class Cliente {
         +String nome
         +String cpf
     }
@@ -35,7 +34,6 @@ classDiagram
         +busca_conta_por_cpf(cpf)
         +atualizar_saldo(conta)
     }
-
     Conta o-- Cliente : possui
     Banco ..> Conta : gerencia
     Banco ..> Cliente : gerencia
