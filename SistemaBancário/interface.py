@@ -12,9 +12,17 @@ from repository.dp import get_connect
 import random 
 import time 
 from logica import *
-directorio_atual = os.path.dirname (os.path.abspath (__file__ ))
-caminho = os.path.join (directorio_atual, "fundo.jpg")
-df = pd.read_csv("data/clean_data.csv")
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent
+caminho_csv = BASE_DIR / "data" / "clean_data.csv"
+caminho_back = BASE_DIR / "fundo.jpg"
+try:
+    df = pd.read_csv("data/clean_data.csv")
+except FileNotFoundError:
+    st.error("Arquivo não encontrado")
+    st.stop()
+
+caminho = "fundo.jpg"
 
 def gerar_clientes ( banco_instance , quantidade : int) : 
     faker = Faker ('pt_BR')
@@ -96,7 +104,7 @@ def cliente_form () :
             return None , None ,False
     return None , None , False
         
-set_background (caminho)
+set_background (caminho_back)
 
 st.set_page_config ("​​💰​Sistema_Bancário_Interativo")
 with st.sidebar :

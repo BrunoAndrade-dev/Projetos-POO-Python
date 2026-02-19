@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns 
 import plotly.express as px
 import joblib 
+from pathlib import Path
 
 def extracao_info (df) :  
     col1, col2 = st.columns(2)
@@ -89,8 +90,10 @@ def plot_3_dif(dist) :
 
 @st.cache_resource
 def carregar_modelo_ia () : 
+    BASE_DIR = Path(__file__).resolve().parent
+    model_path = BASE_DIR / "modelo_investimento_rf.pkl"
     try : 
-        modelo = joblib.load("modelo_investimento_rf.pkl")
+        modelo = joblib.load(model_path)
         return modelo
     except Exception as e :
         st.error ("Erro ao carregar o modelo de IA: {e}")
