@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns 
 import plotly.express as px
+import joblib 
 
 def extracao_info (df) :  
     col1, col2 = st.columns(2)
@@ -59,7 +60,6 @@ def divisao_saldo(df) :
         'Categoria' : labels,
         'Critério de Saldo' : intervalos
     })
-    st.dataframe = df_legenda
 
     df['Faixa_saldo'] = pd.cut(df['saldo'] , bins = bins , labels= labels)
 
@@ -67,7 +67,7 @@ def divisao_saldo(df) :
 
     
 
-    return distribuicao, st.dataframe
+    return distribuicao, df_legenda
 
 
 def plot_3_bar (distribuicao) : 
@@ -87,3 +87,30 @@ def plot_3_dif(dist) :
 
     st.pyplot(fig)
 
+@st.cache_resource
+def carregar_modelo_ia () : 
+    try : 
+        modelo = joblib.load("modelo_investimento_rf.pkl")
+        return modelo
+    except Exception as e :
+        st.error ("Erro ao carregar o modelo de IA: {e}")
+        return None
+
+def realizar_predicao (modelo , saldo) : 
+    if saldo < 1200 : f_num = 0 
+    elif saldo < 5000 : f_num = 1
+    elif saldo < 14000 : f_num = 2
+    else : f_num = 3
+
+    x_input = pd.DataFrame([[saldo, f_num]], columns = ['saldo', 'Faixa_num'])
+    resultado_bruto = modelo.predict(x_input)
+    categorias = {0: 'Silver', 1: 'Platine', 2: 'Gold', 3: 'Diamante'}
+    if saldo < 1200 : 
+        nome_categoria = categorias.get(resultado_bruto[0], "Categoria Silver")
+    elif saldo < 5000 :
+        nome_categoria = categorias.get(resultado_bruto[0], "Categoria Platine")
+    elif saldo < 14000 :
+        nome_categoria = categorias.get(resultado_bruto[0], "Categoria Gold")
+    else :
+        nome_categoria = categorias.get(resultado_bruto[0], "Categoria Diamante")
+    return nome_categoria , f_num 

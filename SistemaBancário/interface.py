@@ -101,7 +101,7 @@ set_background (caminho)
 st.set_page_config ("​​💰​Sistema_Bancário_Interativo")
 with st.sidebar :
     st.title ("Navegação")
-    opção = st.radio("Ir para" , ["​​​🧬​​Início" , " ​🙎🏻‍♂️​Cliente" , "​​​📈​Conta" , "​​​​💳​Banco", "😎​Administrador" , "📊​​Dashboard"])
+    opção = st.radio("Ir para" , ["​​​🧬​​Início" ,"​🚨​Informações",  " ​🙎🏻‍♂️​Cliente" , "​​​📈​Conta" , "​​​​💳​Banco", "😎​Administrador" , "📊​​Dashboard", "📠 ​IA investimentos"])
 if opção == "​​​🧬​​Início" :
     criar_card_animado ("  ​​💰​Sistema Bancário Interativo  ", "Projeto feito para consolidar conhecimentos em POO ", delay=1)
 
@@ -129,6 +129,26 @@ if opção == "​​​🧬​​Início" :
         st.badge ("Portifólio", color = "blue")
         st.link_button ("Acessar", "https://portifolioapp-hwdouyi2fhao77txs4b5da.streamlit.app")
 
+if opção == "​🚨​Informações" :
+    criar_card_animado("​🚨​Informações do Projeto", "Detalhes sobre o sistema bancário e instruções de uso.", delay=1)
+
+    info_projeto_clientes = (" ​Na aba clientes você pode cadastrar novos clientes e listar os ja existentes ")
+    criar_card_animado("🙎🏻‍♂️Cliente", info_projeto_clientes, delay=1)
+
+    info_projeto_contas = (" Na aba contas você pode acessar detalhes de contas vinculadas a um CPF, realizar depósitos, saques e transferências ")
+    criar_card_animado("📈Conta", info_projeto_contas, delay=2)
+
+    info_projeto_banco = (" Na aba banco você pode criar novas contas vinculadas a um CPF já cadastrado ")
+    criar_card_animado("💳Banco", info_projeto_banco, delay=3)
+
+    info_projeto_administrador = (" Espaço dedicado apenas ao criador do projeto, onde é possível gerar clientes e contas de forma automatizada para testes ")
+    criar_card_animado("😎Administrador", info_projeto_administrador, delay=4)
+
+    info_projeto_dashboard = ("📊 Na aba dashboard você tem acesso a análises sobre a base de clientes do banco, incluindo distribuição de saldos e o Asset Under Management (AUM) ")
+    criar_card_animado("📊Dashboard", info_projeto_dashboard, delay=5)
+
+    info_projeto_IA = (" Na aba IA investimentos você pode testar um modelo de machine learning que classifica o perfil de investimento do cliente com base no saldo disponível em conta ")
+    criar_card_animado("📠IA Investimentos", info_projeto_IA, delay=6)
 if opção == " ​🙎🏻‍♂️​Cliente": 
     texto_aba_cliente = """
      Nesta seção você poderá gerenciar informações dos clientes do banco...
@@ -424,23 +444,69 @@ if opção == "😎​Administrador" :
             st.rerun()
 
 
-if opção == "📊​​Dashboard" : 
-    criar_card_animado ("📊​​Dashboard" , "Seção dedicada à análise de dados", delay = 1)
+if opção == "📊​​Dashboard": 
+    criar_card_animado("📊 Dashboard de Análise", "Visão geral da saúde financeira do banco.", delay=1)
+    
+    
     extracao_info(df)
 
     st.divider()
 
-    func1, func2 = st.columns(2)
+    col_aum, col_legenda = st.columns([1.5, 1])
 
-    with func1 : 
-        Aum(df)
+    with col_aum: 
+        Aum(df) 
 
-    with func2 : 
+    with col_legenda: 
         dist, legenda = divisao_saldo(df)
-        st.subheader (" Critérios de Classificação")
+        st.write("### 🔍 Regras de Negócio")
         st.table(legenda)
 
     st.divider()
+
+    
+    st.subheader("📈 Distribuição e Tendência de Saldo")
+    plot_3_dif(dist)
+    st.caption("Este gráfico demonstra a densidade de clientes por faixa salarial.")
+
+    st.divider()
+
+if opção == "📠 ​IA investimentos" :
+    criar_card_animado("📠 IA para Recomendação de Investimentos", "Previsão de perfil de investimento com base no saldo do cliente.", delay=3)
+    modelo = carregar_modelo_ia()
+
+    st.subheader("🔮 Previsão de Perfil de Investimento")
+
+    with st.container() : 
+        coluna1 , coluna2 = st.columns (2)
+
+        with coluna1 : 
+            saldo_teste = st.number_input("Digite o saldo em R$ do cliente para a previsão" , placeholder= "000,00")
+        with coluna2 : 
+            st.caption ("O modelo de IA classifica os clientes em categorias de investimento com base no saldo disponível. Insira o saldo para obter a recomendação de perfil de investimento.")
+
+        st.divider()
+    if st.button (" ​🧿​ Realizar Previsão") : 
+        with st.spinner("Processando previsão..."):
+            resultado, f_num = realizar_predicao(modelo, saldo_teste)
+            
+            st.divider()
+
+            dist, legenda = divisao_saldo(df)
+
+            res1, res2 = st.columns(2)
+            res1.metric("Categoria", "Verifique abaixo")
+            st.table(legenda)
+            
+            res2.metric("Faixa Numérica", f_num)
+
+            if resultado == "Diamante":
+                st.success(f"💎 O cliente com saldo de R$ {saldo_teste:,.2f} é um investidor de elite!")
+            else:
+                st.info(f"✅ O modelo classificou o perfil como: **{resultado}**")
+            
+            st.balloons()
+        
         
 
     
