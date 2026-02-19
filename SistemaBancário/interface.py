@@ -17,7 +17,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 caminho_csv = BASE_DIR / "clean_data.csv"
 caminho_back = BASE_DIR / "fundo.jpg"
-df = pd.read.csv (caminho_csv)
+df = pd.read_csv(caminho_csv)
 
 def gerar_clientes ( banco_instance , quantidade : int) : 
     faker = Faker ('pt_BR')
