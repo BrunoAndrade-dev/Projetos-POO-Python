@@ -436,7 +436,12 @@ if opção == "📊​​Dashboard" :
         Aum(df)
 
     with func2 : 
-        divisao_saldo(df)
+        dist, legenda = divisao_saldo(df)
+        st.subheader (" Critérios de Classificação")
+        st.table(legenda)
+
+    st.divider()
+        
 
     
     

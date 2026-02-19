@@ -65,6 +65,8 @@ def divisao_saldo(df) :
 
     distribuicao = df['Faixa_saldo'].value_counts().reindex(labels)
 
+    
+
     return distribuicao, st.dataframe
 
 
