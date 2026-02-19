@@ -13,11 +13,11 @@ import random
 import time 
 from logica import *
 from pathlib import Path
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).parent
 caminho_csv = BASE_DIR / "data" / "clean_data.csv"
 caminho_back = BASE_DIR / "fundo.jpg"
 try:
-    df = pd.read_csv("data/clean_data.csv")
+    df = pd.read_csv(caminho_csv)
 except FileNotFoundError:
     st.error("Arquivo não encontrado")
     st.stop()
